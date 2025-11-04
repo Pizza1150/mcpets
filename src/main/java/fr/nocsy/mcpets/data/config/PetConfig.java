@@ -131,6 +131,8 @@ public class PetConfig extends AbstractConfig {
 
         // Setting up the data
         String id = getConfig().getString("Id");
+        String tier = getConfig().getString("Tier");
+        String category = getConfig().getString("Category");
         String mobType = getConfig().getString("MythicMob");
         String permission = getConfig().getString("Permission");
         int distance = getConfig().getInt("Distance");
@@ -166,6 +168,8 @@ public class PetConfig extends AbstractConfig {
         this.pet = new Pet(id);
 
         petConfigMapping.put(id, this);
+        pet.setTier(tier);
+        pet.setCategory(category);
         pet.setMythicMobName(mobType);
         pet.setPermission(permission);
         pet.setMountPermission(mountPermission);

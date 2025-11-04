@@ -76,6 +76,10 @@ public class Pet {
     @Getter
     private final String id;
 
+    @Setter
+    @Getter
+    private String tier, category;
+
     @Getter
     @Setter
     private PetStats petStats;
@@ -1070,6 +1074,8 @@ public class Pet {
      */
     public Pet copy() {
         Pet pet = new Pet(id);
+        pet.setTier(tier);
+        pet.setCategory(category);
         pet.setPetStats(petStats);
         pet.setPetLevels(petLevels);
         pet.setMythicMobName(mythicMobName);

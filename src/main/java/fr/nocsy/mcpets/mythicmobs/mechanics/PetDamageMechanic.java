@@ -10,17 +10,26 @@ import io.lumine.mythic.api.skills.SkillMetadata;
 import io.lumine.mythic.api.skills.SkillResult;
 import io.lumine.mythic.api.skills.placeholders.PlaceholderDouble;
 import io.lumine.mythic.bukkit.BukkitAdapter;
+import io.lumine.mythic.bukkit.MythicBukkit;
+import io.lumine.mythic.core.skills.SkillExecutor;
+import io.lumine.mythic.core.skills.damage.DamagingMechanic;
+
+import java.io.File;
+
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Entity;
 
-public class PetDamageMechanic implements ITargetedEntitySkill {
+public class PetDamageMechanic extends DamagingMechanic implements ITargetedEntitySkill {
 
     private PlaceholderDouble damage;
-    private boolean applyStats = true;
+//    private boolean applyStats = true;
 
-    public PetDamageMechanic(MythicLineConfig config) {
+    public PetDamageMechanic(SkillExecutor manager, File file, String line, MythicLineConfig mlc) {
+        super(manager, file, line, mlc);
+
         this.damage = config.getPlaceholderDouble(new String[]{"damage"}, this.damage);
-        this.applyStats = config.getBoolean(new String[]{"applyStats"}, this.applyStats);
+//        this.applyStats = config.getBoolean(new String[]{"applyStats"}, this.applyStats);
     }
 
     public SkillResult castAtEntity(SkillMetadata data, AbstractEntity target) {
@@ -31,10 +40,11 @@ public class PetDamageMechanic implements ITargetedEntitySkill {
         if (pet != null && entity instanceof Damageable) {
             PetDamageEvent event = new PetDamageEvent(pet, pet.getPetStats().getModifiedAttackDamages(damage.get(data, target)));
             Utils.callEvent(event);
-            if (event.isCancelled())
-                return SkillResult.CONDITION_FAILED;
+            if (event.isCancelled()) return SkillResult.CONDITION_FAILED;
 
-            ((Damageable) entity).damage(event.getDamageAmount(), caster);
+            // Change caster to owner
+            data.setCaster(MythicBukkit.inst().getSkillManager().getCaster(BukkitAdapter.adapt(Bukkit.getPlayer(pet.getOwner()))));
+            doDamage(data, target, damage.get());
 
             return SkillResult.SUCCESS;
         }
